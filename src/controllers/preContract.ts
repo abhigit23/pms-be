@@ -8,6 +8,17 @@ import { ProjectSanction } from "../models/Sanction";
 import { ProjectTechnicalBid } from "../models/TechnicalBid";
 import { ProjectWorkOrder } from "../models/WorkOrder";
 
+interface UploadedFile {
+	fieldname: string;
+	originalname: string;
+	encoding: string;
+	mimetype: string;
+	destination: string;
+	filename: string;
+	path: string;
+	size: number;
+}
+
 export const addPreContractDetails = async (req: Request, res: Response) => {
 	const {
 		projectTitle,
@@ -264,9 +275,21 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		nitDate,
 		nitNumber,
 		tBidDate,
+		workOrderNumber,
+		workOrderDate,
+		tendorCost,
+		projectFileNumber,
+		projectFileDate,
+		projectWorkType,
 	} = req.body;
 
-	if (!projectTitle || !projectStatus || !estimateAmount || !sanctionAmount) {
+	if (
+		!projectTitle ||
+		!projectStatus ||
+		!estimateAmount ||
+		!sanctionAmount ||
+		!tendorCost
+	) {
 		throw new BadRequestError("Please fill all the mandatory details!");
 	}
 
@@ -349,9 +372,48 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		);
 	}
 
+	// for Work Order
+
+	if (!workOrderDate && !workOrderNumber) rightFilled = true;
+	if (workOrderDate && workOrderNumber) rightFilled = true;
+	if (workOrderDate && !workOrderNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Work Order Date and Number) fields or leave them empty",
+		);
+	}
+
+	if (!workOrderDate && workOrderNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Work Order Date and Number) fields or leave them empty",
+		);
+	}
+
+	if (!projectFileDate && !projectFileNumber) rightFilled = true;
+	if (projectFileDate && projectFileNumber) rightFilled = true;
+	if (projectFileDate && !projectFileNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Project File Date and Number) fields or leave them empty",
+		);
+	}
+	if (!projectFileDate && projectFileNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Project File Date and Number) fields or leave them empty",
+		);
+	}
+
 	if (sanctionAmount > estimateAmount) {
 		throw new BadRequestError(
 			"Sanctioned Amount should not be greater than Estimated Amount",
+		);
+	}
+
+	if (tendorCost > sanctionAmount) {
+		throw new BadRequestError(
+			"Tendor cost should not be greater than Sanction Amount",
 		);
 	}
 
@@ -363,6 +425,7 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 			project_id: projectId,
 		},
 	});
+
 	if (findProject.length === 0) {
 		throw new BadRequestError(
 			`No project found to edit with projectId ${projectId}`,
@@ -417,6 +480,18 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		{ where: { project_id: projectId } },
 	);
 
+	await ProjectWorkOrder.update(
+		{
+			workOrderNumber,
+			workOrderDate,
+			tendorCost,
+			projectFileNumber,
+			projectFileDate,
+			projectWorkType,
+		},
+		{ where: { project_id: projectId } },
+	);
+
 	res.status(200).json({
 		msg: "Project updated successfully!",
 	});
@@ -444,4 +519,15 @@ export const deleteProject = async (req: Request, res: Response) => {
 	});
 
 	res.status(200).json({ msg: "Project deleted successfully!" });
+};
+
+export const uploadDocs = async (
+	req: Request & { files: UploadedFile[] },
+	res: Response,
+) => {
+	const urls = req.files.map(
+		(file) => `${process.env.BACKEND_URL}/${file.path}`,
+	);
+	const details = await ProjectFeasibility.create({ documents: { urls } });
+	res.status(200).json(details);
 };

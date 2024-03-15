@@ -8,6 +8,7 @@ import morgan from "morgan";
 import associations from "./db/associations";
 import connectDB from "./db/sequelize";
 import errorHandlerMiddleware from "./middlewares/errorHandler";
+import notFoundMiddleware from "./middlewares/notFound";
 import preContractRouter from "./router/preContract";
 import workInProgressRouter from "./router/workInProgress";
 
@@ -20,6 +21,7 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static("uploads"));
 app.use("/api", preContractRouter, workInProgressRouter);
 
+app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
 const server = http.createServer(app);
