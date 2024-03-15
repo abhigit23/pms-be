@@ -1,0 +1,135 @@
+import type { Request, Response } from "express";
+import BadRequestError from "../errors/badRequest";
+import { ProjectDetails } from "../models/Details";
+import { ProjectSanction } from "../models/Sanction";
+import { ProjectWorkOrder } from "../models/WorkOrder";
+
+export const addWorkInProgress = async (req: Request, res: Response) => {
+	const {
+		projectId,
+		workOrderNumber,
+		workOrderDate,
+		tendorCost,
+		projectFileNumber,
+		projectFileDate,
+		projectTitle,
+		projectWorkType,
+		projectStatus,
+	} = req.body;
+
+	if (!tendorCost || !projectWorkType) {
+		throw new BadRequestError("Please fill all the mandatory details!");
+	}
+
+	let rightFilled = true;
+
+	if (!workOrderDate && !workOrderNumber) rightFilled = true;
+	if (workOrderDate && workOrderNumber) rightFilled = true;
+	if (workOrderDate && !workOrderNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Work Order Date and Number) fields or leave them empty",
+		);
+	}
+
+	if (!workOrderDate && workOrderNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Work Order Date and Number) fields or leave them empty",
+		);
+	}
+
+	if (!projectFileDate && !projectFileNumber) rightFilled = true;
+	if (projectFileDate && projectFileNumber) rightFilled = true;
+	if (projectFileDate && !projectFileNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Project File Date and Number) fields or leave them empty",
+		);
+	}
+	if (!projectFileDate && projectFileNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Project File Date and Number) fields or leave them empty",
+		);
+	}
+
+	if (!rightFilled)
+		throw new BadRequestError("Please fill the fields correctly!");
+
+	if (projectId) {
+		const prevWorkOrder = await ProjectWorkOrder.findOne({
+			where: { project_id: projectId },
+		});
+
+		if (prevWorkOrder) {
+			throw new BadRequestError(
+				`Work Order already created for projectId ${projectId}`,
+			);
+		}
+
+		const details = await ProjectDetails.findAll({
+			where: {
+				project_id: projectId,
+			},
+		});
+
+		if (details.length === 0) {
+			throw new BadRequestError(
+				`No project found with projectId: ${projectId}`,
+			);
+		}
+
+		const sanction: any = await ProjectSanction.findOne({
+			where: { project_id: projectId },
+		});
+
+		if (tendorCost > sanction.sanctionAmount) {
+			throw new BadRequestError(
+				"Tendor cost should not be greater than Sanction Amount",
+			);
+		}
+
+		await ProjectDetails.update(
+			{ projectStatus, projectWorkType },
+			{
+				where: {
+					project_id: projectId,
+				},
+			},
+		);
+
+		const workOrder = await ProjectWorkOrder.create({
+			project_id: projectId,
+			workOrderNumber,
+			workOrderDate,
+			tendorCost,
+			projectFileNumber,
+			projectFileDate,
+		});
+
+		const projectDetails = await ProjectDetails.findAll({
+			where: {
+				project_id: projectId,
+			},
+		});
+
+		res.status(201).json({ projectDetails, workOrder });
+	} else {
+		const details: any = await ProjectDetails.create({
+			projectTitle,
+			projectStatus,
+			projectWorkType,
+		});
+		const workOrder = await ProjectWorkOrder.create({
+			project_id: details.project_id,
+			workOrderNumber,
+			workOrderDate,
+			tendorCost,
+			projectFileNumber,
+			projectFileDate,
+		});
+
+		res.status(201).json({ details, workOrder }).end();
+	}
+};
