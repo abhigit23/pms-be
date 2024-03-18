@@ -181,7 +181,34 @@ export const addPreContractDetails = async (req: Request, res: Response) => {
 };
 
 export const getAllProjects = async (req: Request, res: Response) => {
-	const details = await ProjectDetails.findAll();
+	const details = await ProjectDetails.findAll({
+		include: [
+			{
+				model: ProjectFeasibility,
+				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
+			},
+			{
+				model: ProjectEstimates,
+				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
+			},
+			{
+				model: ProjectSanction,
+				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
+			},
+			{
+				model: ProjectNIT,
+				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
+			},
+			{
+				model: ProjectTechnicalBid,
+				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
+			},
+			{
+				model: ProjectWorkOrder,
+				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
+			},
+		],
+	});
 	if (details.length === 0) {
 		throw new BadRequestError("Currently there are no projects added!");
 	}
@@ -192,20 +219,12 @@ export const getAllProjects = async (req: Request, res: Response) => {
 	const technicalBid = await ProjectTechnicalBid.findAll();
 	const workOrder = await ProjectWorkOrder.findAll();
 
-	res.status(200).json({
-		details,
-		feasibility,
-		estimate,
-		sanction,
-		nit,
-		technicalBid,
-		workOrder,
-	});
+	res.status(200).json(details);
 };
 
 export const getSingleProject = async (req: Request, res: Response) => {
 	const { projectId } = req.params;
-	const details = await ProjectDetails.findAll({
+	const details: any = await ProjectDetails.findAll({
 		where: {
 			project_id: projectId,
 		},
@@ -215,45 +234,45 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		throw new BadRequestError(`No project found with projectId: ${projectId}`);
 	}
 
-	const feasibility = await ProjectFeasibility.findAll({
+	const feasibility: any = await ProjectFeasibility.findAll({
 		where: {
 			project_id: projectId,
 		},
 	});
-	const estimate = await ProjectEstimates.findAll({
+	const estimate: any = await ProjectEstimates.findAll({
 		where: {
 			project_id: projectId,
 		},
 	});
-	const sanction = await ProjectSanction.findAll({
+	const sanction: any = await ProjectSanction.findAll({
 		where: {
 			project_id: projectId,
 		},
 	});
-	const nit = await ProjectNIT.findAll({
+	const nit: any = await ProjectNIT.findAll({
 		where: {
 			project_id: projectId,
 		},
 	});
-	const technicalBid = await ProjectTechnicalBid.findAll({
+	const technicalBid: any = await ProjectTechnicalBid.findAll({
 		where: {
 			project_id: projectId,
 		},
 	});
-	const workOrder = await ProjectWorkOrder.findAll({
+	const workOrder: any = await ProjectWorkOrder.findAll({
 		where: {
 			project_id: projectId,
 		},
 	});
 
 	res.status(200).json({
-		details,
-		feasibility,
-		estimate,
-		sanction,
-		nit,
-		technicalBid,
-		workOrder,
+		...details[0]?.dataValues,
+		...feasibility[0]?.dataValues,
+		...estimate[0]?.dataValues,
+		...sanction[0]?.dataValues,
+		...nit[0]?.dataValues,
+		...technicalBid[0]?.dataValues,
+		...workOrder[0]?.dataValues,
 	});
 };
 
