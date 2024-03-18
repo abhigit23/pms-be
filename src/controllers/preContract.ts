@@ -276,6 +276,7 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		where: {
 			project_id: projectId,
 		},
+		raw: true,
 	});
 
 	if (details.length === 0) {
@@ -286,41 +287,55 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		where: {
 			project_id: projectId,
 		},
+		attributes: { exclude: ["feasibility_id"] },
+		raw: true,
 	});
 	const estimate: any = await ProjectEstimates.findAll({
 		where: {
 			project_id: projectId,
 		},
+		attributes: { exclude: ["estimate_id"] },
+		raw: true,
 	});
 	const sanction: any = await ProjectSanction.findAll({
 		where: {
 			project_id: projectId,
 		},
+		attributes: { exclude: ["sanction_id"] },
+		raw: true,
 	});
 	const nit: any = await ProjectNIT.findAll({
 		where: {
 			project_id: projectId,
 		},
+		attributes: { exclude: ["nit_id"] },
+		raw: true,
 	});
 	const technicalBid: any = await ProjectTechnicalBid.findAll({
 		where: {
 			project_id: projectId,
 		},
+		attributes: { exclude: ["tBid_id"] },
+		raw: true,
 	});
 	const workOrder: any = await ProjectWorkOrder.findAll({
 		where: {
 			project_id: projectId,
 		},
+		attributes: { exclude: ["workOrder_id"] },
+		raw: true,
 	});
 
+	console.log(details);
+
 	res.status(200).json({
-		...details[0]?.dataValues,
-		...feasibility[0]?.dataValues,
-		...estimate[0]?.dataValues,
-		...sanction[0]?.dataValues,
-		...nit[0]?.dataValues,
-		...technicalBid[0]?.dataValues,
-		...workOrder[0]?.dataValues,
+		...details[0],
+		...feasibility[0],
+		...estimate[0],
+		...sanction[0],
+		...nit[0],
+		...technicalBid[0],
+		...workOrder[0],
 	});
 };
 
