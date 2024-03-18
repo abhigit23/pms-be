@@ -208,18 +208,66 @@ export const getAllProjects = async (req: Request, res: Response) => {
 				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
 			},
 		],
+		raw: true,
 	});
 	if (details.length === 0) {
 		throw new BadRequestError("Currently there are no projects added!");
 	}
-	const feasibility = await ProjectFeasibility.findAll();
-	const estimate = await ProjectEstimates.findAll();
-	const sanction = await ProjectSanction.findAll();
-	const nit = await ProjectNIT.findAll();
-	const technicalBid = await ProjectTechnicalBid.findAll();
-	const workOrder = await ProjectWorkOrder.findAll();
+	const formattedProjects = details.map((project: any) => {
+		const {
+			project_id,
+			projectTitle,
+			projectStatus,
+			projectWorkType,
+			createdAt,
+			updatedAt,
+			"feasibility.documents": documents,
+			"feasibility.feasibilityStatus": feasibilityStatus,
+			"feasibility.feasibilityDate": feasibilityDate,
+			"estimate.estimateDate": estimateDate,
+			"estimate.estimateNumber": estimateNumber,
+			"estimate.estimateAmount": estimateAmount,
+			"sanction.sanctionDate": sanctionDate,
+			"sanction.sanctionNumber": sanctionNumber,
+			"sanction.sanctionAmount": sanctionAmount,
+			"noticeInvitingTendor.nitDate": nitDate,
+			"noticeInvitingTendor.nitNumber": nitNumber,
+			"technicalBid.tBidDate": tBidDate,
+			"workOrder.workOrderNumber": workOrderNumber,
+			"workOrder.workOrderDate": workOrderDate,
+			"workOrder.tendorCost": tendorCost,
+			"workOrder.projectFileNumber": projectFileNumber,
+			"workOrder.projectFileDate": projectFileDate,
+		} = project;
 
-	res.status(200).json(details);
+		return {
+			project_id,
+			projectTitle,
+			projectStatus,
+			projectWorkType,
+			documents,
+			feasibilityStatus,
+			feasibilityDate,
+			estimateDate,
+			estimateNumber,
+			estimateAmount,
+			sanctionDate,
+			sanctionNumber,
+			sanctionAmount,
+			nitDate,
+			nitNumber,
+			tBidDate,
+			workOrderDate,
+			workOrderNumber,
+			tendorCost,
+			projectFileNumber,
+			projectFileDate,
+			createdAt,
+			updatedAt,
+		};
+	});
+
+	res.status(200).json(formattedProjects);
 };
 
 export const getSingleProject = async (req: Request, res: Response) => {
