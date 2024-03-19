@@ -15,7 +15,7 @@ export const ProjectDetails = sequelize.define("projectDetails", {
 		validate: {
 			len: {
 				msg: "Title shouldn't be less than 5 words and not more than 20 words",
-				args: [5, 20],
+				args: [5, 100],
 			},
 		},
 	},
