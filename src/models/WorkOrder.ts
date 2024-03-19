@@ -9,22 +9,6 @@ export const ProjectWorkOrder = sequelize.define("workOrder", {
 		autoIncrement: true,
 	},
 
-	// companyName: {
-	// 	type: DataTypes.STRING,
-	// 	allowNull: false,
-	// 	validate: {
-	// 		len: {
-	// 			msg: "Company name shouldn't be less than 5 words and not more than 20 words",
-	// 			args: [5, 20],
-	// 		},
-	// 	},
-	// },
-
-	// website: {
-	// 	type: DataTypes.STRING,
-	// 	allowNull: false,
-	// },
-
 	workOrderNumber: {
 		type: DataTypes.INTEGER,
 		allowNull: false,
@@ -50,13 +34,18 @@ export const ProjectWorkOrder = sequelize.define("workOrder", {
 		allowNull: true,
 	},
 
-	// expectedFinishDate: {
-	// 	type: DataTypes.DATE,
-	// 	allowNull: false,
-	// },
+	scheduledStartDate: {
+		type: DataTypes.DATE,
+		allowNull: false,
+	},
 
-	// assignedTo: {
-	// 	type: DataTypes.JSON,
-	// 	allowNull: false,
-	// },
+	scheduledEndDate: {
+		type: DataTypes.DATE,
+		allowNull: false,
+	},
+
+	likelyCompletionDate: {
+		type: DataTypes.DATE,
+		allowNull: true,
+	},
 });

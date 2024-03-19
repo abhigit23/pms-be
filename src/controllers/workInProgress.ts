@@ -15,9 +15,16 @@ export const addWorkInProgress = async (req: Request, res: Response) => {
 		projectTitle,
 		projectWorkType,
 		projectStatus,
+		scheduledStartDate,
+		scheduledEndDate,
 	} = req.body;
 
-	if (!tendorCost || !projectWorkType) {
+	if (
+		!tendorCost ||
+		!projectWorkType ||
+		!scheduledStartDate ||
+		!scheduledEndDate
+	) {
 		throw new BadRequestError("Please fill all the mandatory details!");
 	}
 
@@ -31,7 +38,6 @@ export const addWorkInProgress = async (req: Request, res: Response) => {
 			"Either fill both (Work Order Date and Number) fields or leave them empty",
 		);
 	}
-
 	if (!workOrderDate && workOrderNumber) {
 		rightFilled = false;
 		throw new BadRequestError(
@@ -44,18 +50,39 @@ export const addWorkInProgress = async (req: Request, res: Response) => {
 	if (projectFileDate && !projectFileNumber) {
 		rightFilled = false;
 		throw new BadRequestError(
-			"Either fill both (Project File Date and Number) fields or leave them empty",
+			"Either fill both (Scheduled Start and End Date) fields or leave them empty",
 		);
 	}
 	if (!projectFileDate && projectFileNumber) {
 		rightFilled = false;
 		throw new BadRequestError(
-			"Either fill both (Project File Date and Number) fields or leave them empty",
+			"Either fill both (Scheduled Start and End Date) fields or leave them empty",
+		);
+	}
+
+	if (!scheduledStartDate && !scheduledEndDate) rightFilled = true;
+	if (scheduledStartDate && scheduledEndDate) rightFilled = true;
+	if (scheduledStartDate && !scheduledEndDate) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Scheduled Start and End Date) fields or leave them empty",
+		);
+	}
+	if (!scheduledStartDate && scheduledEndDate) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Scheduled Start and End Date) fields or leave them empty",
 		);
 	}
 
 	if (!rightFilled)
 		throw new BadRequestError("Please fill the fields correctly!");
+
+	if (scheduledStartDate === scheduledEndDate) {
+		throw new BadRequestError(
+			"Scheduled start date should not be same as scheduled end date!",
+		);
+	}
 
 	if (projectId) {
 		const prevWorkOrder = await ProjectWorkOrder.findOne({
@@ -106,6 +133,8 @@ export const addWorkInProgress = async (req: Request, res: Response) => {
 			tendorCost,
 			projectFileNumber,
 			projectFileDate,
+			scheduledStartDate,
+			scheduledEndDate,
 		});
 
 		const projectDetails = await ProjectDetails.findAll({
@@ -128,6 +157,8 @@ export const addWorkInProgress = async (req: Request, res: Response) => {
 			tendorCost,
 			projectFileNumber,
 			projectFileDate,
+			scheduledStartDate,
+			scheduledEndDate,
 		});
 
 		res.status(201).json({ details, workOrder }).end();

@@ -238,6 +238,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
 			"workOrder.tendorCost": tendorCost,
 			"workOrder.projectFileNumber": projectFileNumber,
 			"workOrder.projectFileDate": projectFileDate,
+			"workOrder.scheduledStartDate": scheduledStartDate,
+			"workOrder.scheduledEndDate": scheduledEndDate,
 		} = project;
 
 		return {
@@ -262,6 +264,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
 			tendorCost,
 			projectFileNumber,
 			projectFileDate,
+			scheduledStartDate,
+			scheduledEndDate,
 			createdAt,
 			updatedAt,
 		};
@@ -326,8 +330,6 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		raw: true,
 	});
 
-	console.log(details);
-
 	res.status(200).json({
 		...details[0],
 		...feasibility[0],
@@ -363,6 +365,8 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		projectFileNumber,
 		projectFileDate,
 		projectWorkType,
+		scheduledStartDate,
+		scheduledEndDate,
 	} = req.body;
 
 	if (
@@ -370,7 +374,9 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		!projectStatus ||
 		!estimateAmount ||
 		!sanctionAmount ||
-		!tendorCost
+		!tendorCost ||
+		!scheduledStartDate ||
+		!scheduledEndDate
 	) {
 		throw new BadRequestError("Please fill all the mandatory details!");
 	}
@@ -487,6 +493,21 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		);
 	}
 
+	if (!scheduledStartDate && !scheduledEndDate) rightFilled = true;
+	if (scheduledStartDate && scheduledEndDate) rightFilled = true;
+	if (scheduledStartDate && !scheduledEndDate) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Scheduled Start and End Date) fields or leave them empty",
+		);
+	}
+	if (!scheduledStartDate && scheduledEndDate) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Scheduled Start and End Date) fields or leave them empty",
+		);
+	}
+
 	if (sanctionAmount > estimateAmount) {
 		throw new BadRequestError(
 			"Sanctioned Amount should not be greater than Estimated Amount",
@@ -570,6 +591,8 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 			projectFileNumber,
 			projectFileDate,
 			projectWorkType,
+			scheduledStartDate,
+			scheduledEndDate,
 		},
 		{ where: { project_id: projectId } },
 	);
