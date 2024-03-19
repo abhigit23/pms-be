@@ -602,6 +602,267 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 	});
 };
 
+export const updatePreContractDetails = async (req: Request, res: Response) => {
+	const {
+		projectId,
+		projectTitle,
+		projectStatus,
+		requisitionDate,
+		requestedBy,
+		feasibilityDate,
+		feasibilityStatus,
+		estimateDate,
+		estimateNumber,
+		estimateAmount,
+		sanctionDate,
+		sanctionNumber,
+		sanctionAmount,
+		nitDate,
+		nitNumber,
+		tBidDate,
+		// workOrderNumber,
+		// workOrderDate,
+		// tendorCost,
+		// projectFileNumber,
+		// projectFileDate,
+		// projectWorkType,
+		// scheduledStartDate,
+		// scheduledEndDate,
+	} = req.body;
+
+	if (
+		!projectTitle ||
+		!projectStatus ||
+		!estimateAmount ||
+		!sanctionAmount
+		// !tendorCost ||
+		// !scheduledStartDate ||
+		// !scheduledEndDate
+	) {
+		throw new BadRequestError("Please fill all the mandatory details!");
+	}
+
+	let rightFilled = true;
+
+	// for Requisition
+	if (!requisitionDate && !requestedBy) rightFilled = true;
+	if (requisitionDate && requestedBy) rightFilled = true;
+	if (requisitionDate && !requestedBy) {
+		rightFilled = false;
+		throw new BadRequestError("Either fill both fields or leave them empty");
+	}
+	if (!requisitionDate && requestedBy) {
+		rightFilled = false;
+		throw new BadRequestError("Either fill both fields or leave them empty");
+	}
+
+	// for Feasibility
+
+	if (!feasibilityDate && !feasibilityStatus) rightFilled = true;
+	if (feasibilityDate && feasibilityStatus) rightFilled = true;
+	if (feasibilityDate && !feasibilityStatus) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Feasibility Date and Status) fields or leave them empty",
+		);
+	}
+	if (!feasibilityDate && feasibilityStatus) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Feasibility Date and Status) fields or leave them empty",
+		);
+	}
+
+	// for Sanction
+	if (!sanctionDate && !sanctionNumber) rightFilled = true;
+	if (sanctionDate && sanctionNumber) rightFilled = true;
+	if (sanctionDate && !sanctionNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Sanction Date and Number) fields or leave them empty",
+		);
+	}
+	if (!sanctionDate && sanctionNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Sanction Date and Number) fields or leave them empty",
+		);
+	}
+
+	// for NIT
+	if (!nitDate && !nitNumber) rightFilled = true;
+	if (nitDate && nitNumber) rightFilled = true;
+	if (nitDate && !nitNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (NIT Date and Number) fields or leave them empty",
+		);
+	}
+	if (!nitDate && nitNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (NIT Date and Number) fields or leave them empty",
+		);
+	}
+
+	// for Estimate
+	if (!estimateDate && !estimateNumber) rightFilled = true;
+	if (estimateDate && estimateNumber) rightFilled = true;
+	if (estimateDate && !estimateNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Estimate Date and Number) fields or leave them empty",
+		);
+	}
+	if (!estimateDate && estimateNumber) {
+		rightFilled = false;
+		throw new BadRequestError(
+			"Either fill both (Estimate Date and Number) fields or leave them empty",
+		);
+	}
+
+	// for Work Order
+
+	// if (!workOrderDate && !workOrderNumber) rightFilled = true;
+	// if (workOrderDate && workOrderNumber) rightFilled = true;
+	// if (workOrderDate && !workOrderNumber) {
+	// 	rightFilled = false;
+	// 	throw new BadRequestError(
+	// 		"Either fill both (Work Order Date and Number) fields or leave them empty",
+	// 	);
+	// }
+
+	// if (!workOrderDate && workOrderNumber) {
+	// 	rightFilled = false;
+	// 	throw new BadRequestError(
+	// 		"Either fill both (Work Order Date and Number) fields or leave them empty",
+	// 	);
+	// }
+
+	// if (!projectFileDate && !projectFileNumber) rightFilled = true;
+	// if (projectFileDate && projectFileNumber) rightFilled = true;
+	// if (projectFileDate && !projectFileNumber) {
+	// 	rightFilled = false;
+	// 	throw new BadRequestError(
+	// 		"Either fill both (Project File Date and Number) fields or leave them empty",
+	// 	);
+	// }
+	// if (!projectFileDate && projectFileNumber) {
+	// 	rightFilled = false;
+	// 	throw new BadRequestError(
+	// 		"Either fill both (Project File Date and Number) fields or leave them empty",
+	// 	);
+	// }
+
+	// if (!scheduledStartDate && !scheduledEndDate) rightFilled = true;
+	// if (scheduledStartDate && scheduledEndDate) rightFilled = true;
+	// if (scheduledStartDate && !scheduledEndDate) {
+	// 	rightFilled = false;
+	// 	throw new BadRequestError(
+	// 		"Either fill both (Scheduled Start and End Date) fields or leave them empty",
+	// 	);
+	// }
+	// if (!scheduledStartDate && scheduledEndDate) {
+	// 	rightFilled = false;
+	// 	throw new BadRequestError(
+	// 		"Either fill both (Scheduled Start and End Date) fields or leave them empty",
+	// 	);
+	// }
+
+	if (sanctionAmount > estimateAmount) {
+		throw new BadRequestError(
+			"Sanctioned Amount should not be greater than Estimated Amount",
+		);
+	}
+
+	// if (tendorCost > sanctionAmount) {
+	// 	throw new BadRequestError(
+	// 		"Tendor cost should not be greater than Sanction Amount",
+	// 	);
+	// }
+
+	if (!rightFilled)
+		throw new BadRequestError("Please fill the fields correctly!");
+
+	const findProject = await ProjectDetails.findAll({
+		where: {
+			project_id: projectId,
+		},
+	});
+
+	if (findProject.length === 0) {
+		throw new BadRequestError(
+			`No project found to edit with projectId ${projectId}`,
+		);
+	}
+
+	await ProjectDetails.update(
+		{
+			projectTitle,
+			projectStatus,
+		},
+		{ where: { project_id: projectId } },
+	);
+	await ProjectFeasibility.update(
+		{
+			feasibilityDate,
+			feasibilityStatus,
+		},
+		{ where: { project_id: projectId } },
+	);
+
+	await ProjectEstimates.update(
+		{
+			estimateDate,
+			estimateNumber,
+			estimateAmount,
+		},
+		{ where: { project_id: projectId } },
+	);
+
+	await ProjectSanction.update(
+		{
+			sanctionDate,
+			sanctionNumber,
+			sanctionAmount,
+		},
+		{ where: { project_id: projectId } },
+	);
+
+	await ProjectNIT.update(
+		{
+			nitDate,
+			nitNumber,
+		},
+		{ where: { project_id: projectId } },
+	);
+
+	await ProjectTechnicalBid.update(
+		{
+			tBidDate,
+		},
+		{ where: { project_id: projectId } },
+	);
+
+	// await ProjectWorkOrder.update(
+	// 	{
+	// 		workOrderNumber,
+	// 		workOrderDate,
+	// 		tendorCost,
+	// 		projectFileNumber,
+	// 		projectFileDate,
+	// 		projectWorkType,
+	// 		scheduledStartDate,
+	// 		scheduledEndDate,
+	// 	},
+	// 	{ where: { project_id: projectId } },
+	// );
+
+	res.status(200).json({
+		msg: "Project updated successfully!",
+	});
+};
+
 export const deleteProject = async (req: Request, res: Response) => {
 	const { projectId } = req.params;
 

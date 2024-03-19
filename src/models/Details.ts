@@ -31,24 +31,4 @@ export const ProjectDetails = sequelize.define("projectDetails", {
 		allowNull: true,
 		values: ["single", "double", "triple"],
 	},
-
-	// scheduleStartDate: {
-	// 	type: DataTypes.DATE,
-	// 	allowNull: false,
-	// },
-
-	// scheduleEndDate: {
-	// 	type: DataTypes.DATE,
-	// 	allowNull: false,
-	// },
-
-	// estimatedAmount: {
-	// 	type: DataTypes.INTEGER,
-	// 	allowNull: false,
-	// },
-
-	// sanctionedAmount: {
-	// 	type: DataTypes.INTEGER,
-	// 	allowNull: false,
-	// },
 });
