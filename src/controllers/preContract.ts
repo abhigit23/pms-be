@@ -191,6 +191,10 @@ export const getAllProjects = async (req: Request, res: Response) => {
 	const details = await ProjectDetails.findAll({
 		include: [
 			{
+				model: ProjectRequisition,
+				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
+			},
+			{
 				model: ProjectFeasibility,
 				attributes: { exclude: ["createdAt", "updatedAt", "project_id"] },
 			},
@@ -227,6 +231,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
 			projectStatus,
 			createdAt,
 			updatedAt,
+			"requisition.requestedBy": requestedBy,
+			"requisition.requisitionDate": requisitionDate,
 			"feasibility.documents": documents,
 			"feasibility.feasibilityStatus": feasibilityStatus,
 			"feasibility.feasibilityDate": feasibilityDate,
@@ -247,13 +253,15 @@ export const getAllProjects = async (req: Request, res: Response) => {
 			"workOrder.scheduledStartDate": scheduledStartDate,
 			"workOrder.scheduledEndDate": scheduledEndDate,
 			"workOrder.projectWorkType": projectWorkType,
+			"workOrder.projectType": projectType,
 		} = project;
 
 		return {
 			project_id,
 			projectTitle,
 			projectStatus,
-			projectWorkType,
+			requestedBy,
+			requisitionDate,
 			documents,
 			feasibilityStatus,
 			feasibilityDate,
@@ -267,6 +275,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
 			nitNumber,
 			tBidDate,
 			workOrderDate,
+			projectWorkType,
+			projectType,
 			workOrderNumber,
 			tendorCost,
 			projectFileNumber,
@@ -410,7 +420,6 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 	}
 
 	// for Feasibility
-
 	if (!feasibilityDate && !feasibilityStatus) rightFilled = true;
 	if (feasibilityDate && feasibilityStatus) rightFilled = true;
 	if (feasibilityDate && !feasibilityStatus) {
