@@ -633,6 +633,7 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 			projectFileNumber,
 			projectFileDate,
 			projectType,
+			projectWorkType,
 			scheduledStartDate,
 			scheduledEndDate,
 		});
