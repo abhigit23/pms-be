@@ -4,6 +4,7 @@ import { ProjectDetails } from "../models/Details";
 import { ProjectEstimates } from "../models/Estimates";
 import { ProjectFeasibility } from "../models/Feasibility";
 import { ProjectNIT } from "../models/NIT";
+import { ProjectRequisition } from "../models/Requisition";
 import { ProjectSanction } from "../models/Sanction";
 import { ProjectTechnicalBid } from "../models/TechnicalBid";
 import { ProjectWorkOrder } from "../models/WorkOrder";
@@ -138,6 +139,11 @@ export const addPreContractDetails = async (req: Request, res: Response) => {
 		projectStatus,
 	});
 
+	const requisition = await ProjectRequisition.create({
+		project_id: projectDetails.project_id,
+		requestedBy,
+		requisitionDate,
+	});
 	const feasibility = await ProjectFeasibility.create({
 		project_id: projectDetails.project_id,
 		feasibilityDate,
@@ -169,18 +175,14 @@ export const addPreContractDetails = async (req: Request, res: Response) => {
 		tBidDate,
 	});
 
-	// const workOrder = await ProjectWorkOrder.create({
-	// 	project_id: projectDetails.project_id,
-	// });
-
 	res.status(201).json({
 		projectDetails,
+		requisition,
 		feasibility,
 		estimates,
 		sanction,
 		nit,
 		technicalBid,
-		// workOrder,
 		msg: "Project Added Successfully!",
 	});
 };
@@ -292,6 +294,14 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		throw new BadRequestError(`No project found with projectId: ${projectId}`);
 	}
 
+	const requisition: any = await ProjectRequisition.findAll({
+		where: {
+			project_id: projectId,
+		},
+		attributes: { exclude: ["requisiton_id"] },
+		raw: true,
+	});
+
 	const feasibility: any = await ProjectFeasibility.findAll({
 		where: {
 			project_id: projectId,
@@ -337,6 +347,7 @@ export const getSingleProject = async (req: Request, res: Response) => {
 
 	res.status(200).json({
 		...details[0],
+		...requisition[0],
 		...feasibility[0],
 		...estimate[0],
 		...sanction[0],
@@ -544,6 +555,17 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		},
 		{ where: { project_id: projectId } },
 	);
+
+	await ProjectRequisition.update(
+		{
+			requestedBy,
+			requisitionDate,
+		},
+		{
+			where: { project_id: projectId },
+		},
+	);
+
 	await ProjectFeasibility.update(
 		{
 			feasibilityDate,
