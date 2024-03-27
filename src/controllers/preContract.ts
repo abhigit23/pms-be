@@ -391,6 +391,7 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		projectFileNumber,
 		projectFileDate,
 		projectType,
+		projectWorkType,
 		scheduledStartDate,
 		scheduledEndDate,
 	} = req.body;
@@ -616,19 +617,17 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 		{ where: { project_id: projectId } },
 	);
 
-	await ProjectWorkOrder.update(
-		{
-			workOrderNumber,
-			workOrderDate,
-			tendorCost,
-			projectFileNumber,
-			projectFileDate,
-			projectType,
-			scheduledStartDate,
-			scheduledEndDate,
-		},
-		{ where: { project_id: projectId } },
-	);
+	await ProjectWorkOrder.create({
+		project_id: projectId,
+		workOrderNumber,
+		workOrderDate,
+		tendorCost,
+		projectFileNumber,
+		projectFileDate,
+		projectType,
+		scheduledStartDate,
+		scheduledEndDate,
+	});
 
 	res.status(200).json({
 		msg: "Project updated successfully!",
