@@ -9,6 +9,17 @@ export const ProjectWorkOrder = sequelize.define("workOrder", {
 		autoIncrement: true,
 	},
 
+	projectType: {
+		type: DataTypes.STRING,
+		allowNull: true,
+	},
+
+	projectWorkType: {
+		type: DataTypes.ENUM,
+		allowNull: true,
+		values: ["single", "double", "triple"],
+	},
+
 	workOrderNumber: {
 		type: DataTypes.INTEGER,
 		allowNull: false,

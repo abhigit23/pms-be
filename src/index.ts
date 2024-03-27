@@ -34,7 +34,7 @@ const start = async () => {
 		await connectDB.authenticate();
 		console.log("MySQL connected successfully");
 		associations();
-		connectDB.sync({ force: true });
+		connectDB.sync({ force: false });
 	} catch (error) {
 		console.log(error);
 	}

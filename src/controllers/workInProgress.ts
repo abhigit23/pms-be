@@ -6,7 +6,7 @@ import { ProjectWorkOrder } from "../models/WorkOrder";
 
 export const addWorkInProgress = async (req: Request, res: Response) => {
 	const {
-		projectId,
+		// projectId,
 		workOrderNumber,
 		workOrderDate,
 		tendorCost,
@@ -84,83 +84,83 @@ export const addWorkInProgress = async (req: Request, res: Response) => {
 		);
 	}
 
-	if (projectId) {
-		const prevWorkOrder = await ProjectWorkOrder.findOne({
-			where: { project_id: projectId },
-		});
+	// if (projectId) {
+	// 	const prevWorkOrder = await ProjectWorkOrder.findOne({
+	// 		where: { project_id: projectId },
+	// 	});
 
-		if (prevWorkOrder) {
-			throw new BadRequestError(
-				`Work Order already created for projectId ${projectId}`,
-			);
-		}
+	// 	const details = await ProjectDetails.findAll({
+	// 		where: {
+	// 			project_id: projectId,
+	// 		},
+	// 	});
 
-		const details = await ProjectDetails.findAll({
-			where: {
-				project_id: projectId,
-			},
-		});
+	// 	if (details.length === 0) {
+	// 		throw new BadRequestError(
+	// 			`No project found with projectId: ${projectId}`,
+	// 		);
+	// 	}
 
-		if (details.length === 0) {
-			throw new BadRequestError(
-				`No project found with projectId: ${projectId}`,
-			);
-		}
+	// 	const sanction: any = await ProjectSanction.findOne({
+	// 		where: { project_id: projectId },
+	// 	});
 
-		const sanction: any = await ProjectSanction.findOne({
-			where: { project_id: projectId },
-		});
+	// 	if (tendorCost > sanction.sanctionAmount) {
+	// 		throw new BadRequestError(
+	// 			"Tendor cost should not be greater than Sanction Amount",
+	// 		);
+	// 	}
 
-		if (tendorCost > sanction.sanctionAmount) {
-			throw new BadRequestError(
-				"Tendor cost should not be greater than Sanction Amount",
-			);
-		}
+	// 	await ProjectDetails.update(
+	// 		{ projectStatus, projectWorkType },
+	// 		{
+	// 			where: {
+	// 				project_id: projectId,
+	// 			},
+	// 		},
+	// 	);
 
-		await ProjectDetails.update(
-			{ projectStatus, projectWorkType },
-			{
-				where: {
-					project_id: projectId,
-				},
-			},
-		);
+	// 	const workOrder = await ProjectWorkOrder.create({
+	// 		project_id: projectId,
+	// 		workOrderNumber,
+	// 		workOrderDate,
+	// 		tendorCost,
+	// 		projectFileNumber,
+	// 		projectFileDate,
+	// 		scheduledStartDate,
+	// 		scheduledEndDate,
+	// 	});
 
-		const workOrder = await ProjectWorkOrder.create({
-			project_id: projectId,
-			workOrderNumber,
-			workOrderDate,
-			tendorCost,
-			projectFileNumber,
-			projectFileDate,
-			scheduledStartDate,
-			scheduledEndDate,
-		});
+	// 	const projectDetails = await ProjectDetails.findAll({
+	// 		where: {
+	// 			project_id: projectId,
+	// 		},
+	// 	});
 
-		const projectDetails = await ProjectDetails.findAll({
-			where: {
-				project_id: projectId,
-			},
-		});
+	// 	res
+	// 		.status(201)
+	// 		.json({ projectDetails, workOrder, msg: "Project Added Successfully!" });
+	// }
+	// else {
+	const details: any = await ProjectDetails.create({
+		projectTitle,
+		projectStatus,
+	});
+	const workOrder = await ProjectWorkOrder.create({
+		project_id: details.project_id,
+		workOrderNumber,
+		workOrderDate,
+		tendorCost,
+		projectWorkType,
+		projectFileNumber,
+		projectFileDate,
+		scheduledStartDate,
+		scheduledEndDate,
+	});
 
-		res.status(201).json({ projectDetails, workOrder });
-	} else {
-		const details: any = await ProjectDetails.create({
-			projectTitle,
-			projectStatus,
-			projectWorkType,
-		});
-		const workOrder = await ProjectWorkOrder.create({
-			project_id: details.project_id,
-			workOrderNumber,
-			workOrderDate,
-			tendorCost,
-			projectFileNumber,
-			projectFileDate,
-			scheduledStartDate,
-			scheduledEndDate,
-		});
-
-		res.status(201).json({ details, workOrder }).end();
-	}
+	res
+		.status(201)
+		.json({ details, workOrder, msg: "Project Added Successfully!" })
+		.end();
+	// }
 };

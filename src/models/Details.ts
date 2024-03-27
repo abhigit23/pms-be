@@ -23,12 +23,6 @@ export const ProjectDetails = sequelize.define("projectDetails", {
 	projectStatus: {
 		type: DataTypes.ENUM,
 		allowNull: false,
-		values: ["work-in-progress", "pre-contractual"],
-	},
-
-	projectWorkType: {
-		type: DataTypes.ENUM,
-		allowNull: true,
-		values: ["single", "double", "triple"],
+		values: ["work-in-progress", "pre-contractual", "cancelled"],
 	},
 });
