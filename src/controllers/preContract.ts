@@ -383,6 +383,8 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		workOrderNumber,
 		workOrderDate,
 		tendorCost,
+		projectType,
+		projectWorkType,
 		projectFileNumber,
 		projectFileDate,
 		scheduledStartDate,
@@ -394,6 +396,8 @@ export const getSingleProject = async (req: Request, res: Response) => {
 					workOrderNumber: null,
 					workOrderDate: null,
 					tendorCost: null,
+					projectType: null,
+					projectWorkType: null,
 					projectFileNumber: null,
 					projectFileDate: null,
 					scheduledStartDate: null,
@@ -436,6 +440,8 @@ export const getSingleProject = async (req: Request, res: Response) => {
 			? moment(workOrderDate).format("DD/MM/YYYY")
 			: workOrderDate,
 		tendorCost,
+		projectType,
+		projectWorkType,
 		projectFileNumber,
 		projectFileDate: moment(projectFileDate).isValid()
 			? moment(projectFileDate).format("DD/MM/YYYY")
