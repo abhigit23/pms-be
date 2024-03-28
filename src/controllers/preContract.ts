@@ -381,6 +381,7 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		technicalBid.length > 0 ? technicalBid[0] : { tBidDate: null };
 	const {
 		workOrderNumber,
+		workOrderDate,
 		tendorCost,
 		projectFileNumber,
 		projectFileDate,
@@ -391,6 +392,7 @@ export const getSingleProject = async (req: Request, res: Response) => {
 			? workOrder[0]
 			: {
 					workOrderNumber: null,
+					workOrderDate: null,
 					tendorCost: null,
 					projectFileNumber: null,
 					projectFileDate: null,
@@ -430,6 +432,9 @@ export const getSingleProject = async (req: Request, res: Response) => {
 			? moment(tBidDate).format("DD/MM/YYYY")
 			: tBidDate,
 		workOrderNumber,
+		workOrderDate: moment(workOrderDate).isValid()
+			? moment(workOrderDate).format("DD/MM/YYYY")
+			: workOrderDate,
 		tendorCost,
 		projectFileNumber,
 		projectFileDate: moment(projectFileDate).isValid()
