@@ -373,31 +373,49 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		scheduledEndDate,
 	} = workOrder[0];
 
+	console.log();
+
 	res.status(200).json({
 		project_id,
 		projectTitle,
 		projectStatus,
 		createdAt: moment(createdAt).format("DD-MM-YYYY"),
 		updatedAt: moment(updatedAt).format("DD-MM-YYYY"),
-		requisitionDate: moment(requisitionDate).format("DD-MM-YYYY"),
+		requisitionDate: moment(requisitionDate).isValid()
+			? moment(requisitionDate).format("DD-MM-YYYY")
+			: requisitionDate,
 		requestedBy,
 		feasibilityStatus,
 		feasibilityDate: moment(feasibilityDate).format("DD-MM-YYYY"),
-		estimateDate: moment(estimateDate).format("DD-MM-YYYY"),
+		estimateDate: moment(estimateDate).isValid
+			? moment(estimateDate).format("DD-MM-YYYY")
+			: estimateDate,
 		estimateNumber,
 		estimateAmount,
-		sanctionDate: moment(sanctionDate).format("DD-MM-YYYY"),
+		sanctionDate: moment(sanctionDate).isValid()
+			? moment(sanctionDate).format("DD-MM-YYYY")
+			: sanctionDate,
 		sanctionNumber,
 		sanctionAmount,
-		nitDate: moment(nitDate).format("DD-MM-YYYY"),
+		nitDate: moment(nitDate).isValid()
+			? moment(nitDate).format("DD-MM-YYYY")
+			: nitDate,
 		nitNumber,
-		tBidDate: moment(tBidDate).format("DD-MM-YYYY"),
+		tBidDate: moment(tBidDate).isValid()
+			? moment(tBidDate).format("DD-MM-YYYY")
+			: tBidDate,
 		workOrderNumber,
 		tendorCost,
 		projectFileNumber,
-		projectFileDate: moment(projectFileDate).format("DD-MM-YYYY"),
-		scheduledStartDate: moment(scheduledStartDate).format("DD-MM-YYYY"),
-		scheduledEndDate: moment(scheduledEndDate).format("DD-MM-YYYY"),
+		projectFileDate: moment(projectFileDate).isValid()
+			? moment(projectFileDate).format("DD-MM-YYYY")
+			: projectFileDate,
+		scheduledStartDate: moment(scheduledStartDate).isValid()
+			? moment(scheduledStartDate).format("DD-MM-YYYY")
+			: scheduledStartDate,
+		scheduledEndDate: moment(scheduledEndDate).isValid
+			? moment(scheduledEndDate).format("DD-MM-YYYY")
+			: scheduledEndDate,
 	});
 };
 
