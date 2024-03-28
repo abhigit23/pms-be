@@ -358,12 +358,27 @@ export const getSingleProject = async (req: Request, res: Response) => {
 
 	const { project_id, projectTitle, projectStatus, createdAt, updatedAt } =
 		details[0];
-	const { requisitionDate, requestedBy } = requisition[0];
-	const { feasibilityStatus, feasibilityDate } = feasibility[0];
-	const { estimateDate, estimateNumber, estimateAmount } = estimate[0];
-	const { sanctionDate, sanctionNumber, sanctionAmount } = sanction[0];
-	const { nitDate, nitNumber } = nit[0];
-	const { tBidDate } = technicalBid[0];
+
+	const { requisitionDate, requestedBy } =
+		requisition.length > 0
+			? requisition[0]
+			: { requisitionDate: null, requestedBy: null };
+	const { feasibilityStatus, feasibilityDate } =
+		feasibility.length > 0
+			? feasibility[0]
+			: { feasibilityStatus: null, feasibilityDate: null };
+	const { estimateDate, estimateNumber, estimateAmount } =
+		estimate.length > 0
+			? estimate[0]
+			: { estimateDate: null, estimateNumber: null, estimateAmount: null };
+	const { sanctionDate, sanctionNumber, sanctionAmount } =
+		sanction.length > 0
+			? sanction[0]
+			: { sanctionDate: null, sanctionNumber: null, sanctionAmount: null };
+	const { nitDate, nitNumber } =
+		nit.length > 0 ? nit[0] : { nitDate: null, nitNumber: null };
+	const { tBidDate } =
+		technicalBid.length > 0 ? technicalBid[0] : { tBidDate: null };
 	const {
 		workOrderNumber,
 		tendorCost,
@@ -371,50 +386,60 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		projectFileDate,
 		scheduledStartDate,
 		scheduledEndDate,
-	} = workOrder[0];
-
-	console.log();
+	} =
+		workOrder.length > 0
+			? workOrder[0]
+			: {
+					workOrderNumber: null,
+					tendorCost: null,
+					projectFileNumber: null,
+					projectFileDate: null,
+					scheduledStartDate: null,
+					scheduledEndDate: null,
+				};
 
 	res.status(200).json({
 		project_id,
 		projectTitle,
 		projectStatus,
-		createdAt: moment(createdAt).format("DD-MM-YYYY"),
-		updatedAt: moment(updatedAt).format("DD-MM-YYYY"),
+		createdAt: moment(createdAt).format("DD/MM/YYYY"),
+		updatedAt: moment(updatedAt).format("DD/MM/YYYY"),
 		requisitionDate: moment(requisitionDate).isValid()
-			? moment(requisitionDate).format("DD-MM-YYYY")
+			? moment(requisitionDate).format("DD/MM/YYYY")
 			: requisitionDate,
 		requestedBy,
 		feasibilityStatus,
-		feasibilityDate: moment(feasibilityDate).format("DD-MM-YYYY"),
-		estimateDate: moment(estimateDate).isValid
-			? moment(estimateDate).format("DD-MM-YYYY")
+		feasibilityDate: moment(feasibilityDate).isValid()
+			? moment(feasibilityDate).format("DD/MM/YYYY")
+			: feasibilityDate,
+		estimateDate: moment(estimateDate).isValid()
+			? moment(estimateDate).format("DD/MM/YYYY")
 			: estimateDate,
 		estimateNumber,
 		estimateAmount,
 		sanctionDate: moment(sanctionDate).isValid()
-			? moment(sanctionDate).format("DD-MM-YYYY")
+			? moment(sanctionDate).format("DD/MM/YYYY")
 			: sanctionDate,
 		sanctionNumber,
 		sanctionAmount,
 		nitDate: moment(nitDate).isValid()
-			? moment(nitDate).format("DD-MM-YYYY")
+			? moment(nitDate).format("DD/MM/YYYY")
 			: nitDate,
 		nitNumber,
 		tBidDate: moment(tBidDate).isValid()
-			? moment(tBidDate).format("DD-MM-YYYY")
+			? moment(tBidDate).format("DD/MM/YYYY")
 			: tBidDate,
 		workOrderNumber,
 		tendorCost,
 		projectFileNumber,
 		projectFileDate: moment(projectFileDate).isValid()
-			? moment(projectFileDate).format("DD-MM-YYYY")
+			? moment(projectFileDate).format("DD/MM/YYYY")
 			: projectFileDate,
 		scheduledStartDate: moment(scheduledStartDate).isValid()
-			? moment(scheduledStartDate).format("DD-MM-YYYY")
+			? moment(scheduledStartDate).format("DD/MM/YYYY")
 			: scheduledStartDate,
-		scheduledEndDate: moment(scheduledEndDate).isValid
-			? moment(scheduledEndDate).format("DD-MM-YYYY")
+		scheduledEndDate: moment(scheduledEndDate).isValid()
+			? moment(scheduledEndDate).format("DD/MM/YYYY")
 			: scheduledEndDate,
 	});
 };
