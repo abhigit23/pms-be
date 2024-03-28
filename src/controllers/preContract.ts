@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { where } from "sequelize";
+import moment from "moment";
 import BadRequestError from "../errors/badRequest";
 import { ProjectDetails } from "../models/Details";
 import { ProjectEstimates } from "../models/Estimates";
@@ -356,15 +356,48 @@ export const getSingleProject = async (req: Request, res: Response) => {
 		raw: true,
 	});
 
+	const { project_id, projectTitle, projectStatus, createdAt, updatedAt } =
+		details[0];
+	const { requisitionDate, requestedBy } = requisition[0];
+	const { feasibilityStatus, feasibilityDate } = feasibility[0];
+	const { estimateDate, estimateNumber, estimateAmount } = estimate[0];
+	const { sanctionDate, sanctionNumber, sanctionAmount } = sanction[0];
+	const { nitDate, nitNumber } = nit[0];
+	const { tBidDate } = technicalBid[0];
+	const {
+		workOrderNumber,
+		tendorCost,
+		projectFileNumber,
+		projectFileDate,
+		scheduledStartDate,
+		scheduledEndDate,
+	} = workOrder[0];
+
 	res.status(200).json({
-		...details[0],
-		...requisition[0],
-		...feasibility[0],
-		...estimate[0],
-		...sanction[0],
-		...nit[0],
-		...technicalBid[0],
-		...workOrder[0],
+		project_id,
+		projectTitle,
+		projectStatus,
+		createdAt: moment(createdAt).format("DD-MM-YYYY"),
+		updatedAt: moment(updatedAt).format("DD-MM-YYYY"),
+		requisitionDate: moment(requisitionDate).format("DD-MM-YYYY"),
+		requestedBy,
+		feasibilityStatus,
+		feasibilityDate: moment(feasibilityDate).format("DD-MM-YYYY"),
+		estimateDate: moment(estimateDate).format("DD-MM-YYYY"),
+		estimateNumber,
+		estimateAmount,
+		sanctionDate: moment(sanctionDate).format("DD-MM-YYYY"),
+		sanctionNumber,
+		sanctionAmount,
+		nitDate: moment(nitDate).format("DD-MM-YYYY"),
+		nitNumber,
+		tBidDate: moment(tBidDate).format("DD-MM-YYYY"),
+		workOrderNumber,
+		tendorCost,
+		projectFileNumber,
+		projectFileDate: moment(projectFileDate).format("DD-MM-YYYY"),
+		scheduledStartDate: moment(scheduledStartDate).format("DD-MM-YYYY"),
+		scheduledEndDate: moment(scheduledEndDate).format("DD-MM-YYYY"),
 	});
 };
 
@@ -647,6 +680,7 @@ export const updateProjectDetails = async (req: Request, res: Response) => {
 				projectFileNumber,
 				projectFileDate,
 				projectType,
+				projectWorkType,
 				scheduledStartDate,
 				scheduledEndDate,
 			},
