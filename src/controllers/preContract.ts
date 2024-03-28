@@ -408,7 +408,7 @@ export const getSingleProject = async (req: Request, res: Response) => {
 			? moment(requisitionDate).format("DD/MM/YYYY")
 			: requisitionDate,
 		requestedBy,
-		feasibilityStatus,
+		feasibilityStatus: feasibilityStatus ? true : false,
 		feasibilityDate: moment(feasibilityDate).isValid()
 			? moment(feasibilityDate).format("DD/MM/YYYY")
 			: feasibilityDate,
